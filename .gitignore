@@ -1,0 +1,25 @@
+# Секреты
+.env
+
+# База данных
+*.db
+users.db
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Виртуальное окружение
+venv/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+
+# Логи
+*.log
+
+# Временные файлы
+.DS_Store
