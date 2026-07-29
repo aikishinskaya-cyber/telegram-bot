@@ -127,34 +127,20 @@ async def buy(callback: CallbackQuery):
 
 
     await bot.send_invoice(
-
-        chat_id=callback.from_user.id,
-
-        title="Подписка на канал",
-
-        description=" ",
-
-        payload=f"subscription_{callback.from_user.id}",
-
-        provider_token=PROVIDER_TOKEN,
-
-        currency="RUB",
-
-        prices=[
-
-            LabeledPrice(
-
-                label="Подписка",
-
-                amount=PRICE
-
-            )
-
-        ],
-
-        provider_data=json.dumps(receipt)
-
-    )
+    chat_id=callback.from_user.id,
+    title="Подписка на канал",
+    description="Доступ к закрытому контенту",
+    payload=f"subscription_{callback.from_user.id}",
+    provider_token=PROVIDER_TOKEN,
+    currency="RUB",
+    prices=[
+        LabeledPrice(
+            label="Подписка",
+            amount=PRICE
+        )
+    ],
+    provider_data='{"receipt": {"items": [{"description": "Подписка на канал", "quantity": "1.00", "amount": {"value": "1300.00", "currency": "RUB"}, "vat_code": 4}], "tax_system_code": 0}}'
+)
 
 
 
