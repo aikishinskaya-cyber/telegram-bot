@@ -44,7 +44,7 @@ def buy_keyboard():
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="🖤 Купить доступ на 30 дней",
+                    text="🖤 Купить доступ на месяц",
                     callback_data="buy"
                 )
             ]
@@ -79,7 +79,7 @@ async def start(message: Message):
 
     await message.answer(
         "🖤 Добро пожаловать!\n\n"
-        "Доступ к закрытому каналу на 30 дней.\n"
+        "Нажмите кнопку ниже,что бы получить доступ к каналу на 30 дней.\n"
         "Стоимость: 1300 ₽",
         reply_markup=buy_keyboard()
     )
@@ -104,7 +104,7 @@ async def buy(callback: CallbackQuery):
 
                 {
 
-                    "description": "Доступ в закрытый канал на 30 дней",
+                    "description": " ",
 
                     "quantity": "1.00",
 
@@ -131,9 +131,9 @@ async def buy(callback: CallbackQuery):
 
         chat_id=callback.from_user.id,
 
-        title="Подписка на 30 дней",
+        title="Подписка на канал Сони Прозоровской",
 
-        description="Доступ в закрытый канал",
+        description=" ",
 
         payload=f"subscription_{callback.from_user.id}",
 
@@ -209,7 +209,7 @@ async def payment_success(message: Message):
 
 
         await message.answer(
-            "Произошла ошибка. Напишите администратору."
+            "Произошла ошибка."
         )
 
         return
@@ -218,7 +218,7 @@ async def payment_success(message: Message):
 
     await message.answer(
 
-        "🎉 Оплата прошла успешно!\n\n"
+        "🖤 Оплата прошла успешно!\n\n"
 
         f"🔗 Ваша ссылка:\n"
         f"{invite.invite_link}\n\n"
