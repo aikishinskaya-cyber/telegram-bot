@@ -79,8 +79,7 @@ async def start(message: Message):
 
     await message.answer(
         "🖤 Добро пожаловать!\n\n"
-        "Нажмите кнопку ниже,что бы получить доступ к каналу на 30 дней.\n"
-        "Стоимость: 1300 ₽",
+        "Нажмите кнопку ниже,что бы получить доступ к каналу на 30 дней.\n",
         reply_markup=buy_keyboard()
     )
 
@@ -131,7 +130,7 @@ async def buy(callback: CallbackQuery):
 
         chat_id=callback.from_user.id,
 
-        title="Подписка на канал Сони Прозоровской",
+        title="Подписка на канал",
 
         description=" ",
 
