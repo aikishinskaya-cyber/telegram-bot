@@ -9,8 +9,8 @@ import os
 # ==========================================
 # ВАШИ ДАННЫЕ (ВСЁ ЗАПОЛНЕНО)
 # ==========================================
-BOT_TOKEN = "8439119682:AAHV00Uk9LK90eoysUe7uKq3J56AcS3uPgQ"
-PROVIDER_TOKEN = "390540012:LIVE:100092"  # БОЕВОЙ ТОКЕН
+BOT_TOKEN = "8439119682:AAFeCLMNd5g8dsxEattUB7tiYb-2mK7w0ck"
+PROVIDER_TOKEN = "live_mB44CKbSz6YjwlI9ArHdbAoJtW2qSWpRISmE83mvDCQ"  # БОЕВОЙ ТОКЕН
 ADMIN_ID = 6217476601
 CHANNEL_ID = -1001234567890  # ✅ ВАШ ID КАНАЛА (ВСТАВЛЕН!)
 PRICE = 100  # 1 РУБЛЬ (ТЕСТ!)
