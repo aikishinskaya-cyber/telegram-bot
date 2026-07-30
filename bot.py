@@ -12,7 +12,7 @@ import os
 BOT_TOKEN = "8439119682:AAHV00Uk9LK90eoysUe7uKq3J56AcS3uPgQ"
 PROVIDER_TOKEN = "390540012:LIVE:100092"  # БОЕВОЙ ТОКЕН
 ADMIN_ID = 6217476601
-CHANNEL_ID = None  # ПОЛУЧИТЕ ПО КОМАНДЕ /getid
+CHANNEL_ID = -1001234567890  # ✅ ВАШ ID КАНАЛА (ВСТАВЛЕН!)
 PRICE = 100  # 1 РУБЛЬ (ТЕСТ!)
 # ==========================================
 
@@ -55,18 +55,6 @@ def remove_user(user_id):
 # ==========================================
 # КОМАНДЫ
 # ==========================================
-
-# ---------- ПОЛУЧИТЬ ID КАНАЛА ----------
-@dp.message_handler(commands=['getid'])
-async def get_chat_id(message: types.Message):
-    await message.answer(
-        f"🆔 ID ЭТОГО ЧАТА: <code>{message.chat.id}</code>\n"
-        f"📌 Название: {message.chat.title}\n"
-        f"📝 Тип: {message.chat.type}\n\n"
-        f"📋 СКОПИРУЙТЕ И ВСТАВЬТЕ В КОД:\n"
-        f"<code>CHANNEL_ID = {message.chat.id}</code>",
-        parse_mode="HTML"
-    )
 
 # ---------- СТАРТ ----------
 @dp.message_handler(commands=['start'])
