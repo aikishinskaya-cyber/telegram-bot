@@ -1,350 +1,84 @@
 import asyncio
-from datetime import datetime
+from aiogram import Bot, types
+from aiogram.dispatcher import Dispatcher
+from aiogram.utils import executor
+from aiogram.types import LabeledPrice
+import datetime
 
-from aiogram import Bot, Dispatcher, F
-from aiogram.types import (
-    Message,
-    CallbackQuery,
-    InlineKeyboardMarkup,
-    InlineKeyboardButton,
-    LabeledPrice,
-    PreCheckoutQuery
-)
-from aiogram.filters import Command
-
-from config import (
-    BOT_TOKEN,
-    PROVIDER_TOKEN,
-    ADMIN_ID,
-    CHANNEL_ID,
-    PRICE
-)
-
-from database import (
-    init_db,
-    get_user,
-    add_subscription,
-    get_all_users,
-    delete_user
-)
-
+# ===================================================
+# ТОЛЬКО ЭТИ ДАННЫЕ ЗАПОЛНИТЕ
+# ===================================================
+BOT_TOKEN = "8439119682:AAHV00Uk9LK90eoysUe7uKq3J56AcS3uPgQ"
+PROVIDER_TOKEN = "390540012:LIVE:100092"  # БОЕВОЙ ТОКЕН
+YOUR_TELEGRAM_ID = 6217476601
+# ===================================================
 
 bot = Bot(token=BOT_TOKEN)
+dp = Dispatcher(bot)
 
-dp = Dispatcher()
-
-
-# ==========================
-# КНОПКА ПОКУПКИ
-# ==========================
-
-def buy_keyboard():
-
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(
-                    text="🖤 Купить доступ на 30 дней",
-                    callback_data="buy"
-                )
-            ]
-        ]
-    )
-
-
-# ==========================
-# START
-# ==========================
-
-@dp.message(Command("start"))
-async def start(message: Message):
-
-    user_id = message.from_user.id
-
-    expire = await get_user(user_id)
-
-
-    if expire:
-
-        await message.answer(
-            "🖤 У вас уже есть активная подписка.\n\n"
-            f"📅 Действует до:\n"
-            f"{expire.strftime('%d.%m.%Y')}\n\n"
-            "Можно продлить доступ:",
-            reply_markup=buy_keyboard()
-        )
-
-        return
-
-
+# ПРОСТАЯ КНОПКА
+@dp.message_handler(commands=['start'])
+async def start(message: types.Message):
+    keyboard = types.InlineKeyboardMarkup()
+    btn = types.InlineKeyboardButton("💳 ТЕСТ ОПЛАТЫ 100 ₽", callback_data="pay")
+    keyboard.add(btn)
+    
     await message.answer(
-        "🖤 Добро пожаловать!\n\n"
-        "После оплаты вы получите доступ "
-        "к закрытому каналу на 30 дней.",
-        reply_markup=buy_keyboard()
+        "🧪 ТЕСТОВЫЙ ПЛАТЕЖ\n\n"
+        "Нажмите кнопку для теста оплаты\n"
+        "Сумма: 100 ₽",
+        reply_markup=keyboard
     )
 
-
-# ==========================
-# ОПЛАТА
-# ==========================
-
-@dp.callback_query(F.data == "buy")
-async def buy(callback: CallbackQuery):
-    await callback.answer()
-
-    await bot.send_invoice(
-        chat_id=callback.from_user.id,
-
-        title="Подписка на канал",
-
-        description="Доступ к закрытому Telegram-каналу на 30 дней",
-
-        payload=f"subscription_{callback.from_user.id}",
-
-        provider_token=PROVIDER_TOKEN,
-
-        currency="RUB",
-
-        prices=[
-            LabeledPrice(
-                label="Доступ на 30 дней",
-                amount=PRICE
-            )
-        ],
-
-        start_parameter="subscription",
-
-        need_phone_number=True,
-        need_email=True,
-
-        send_phone_number_to_provider=True,
-        send_email_to_provider=True
-    )
-
-# ==========================
-# ПРОВЕРКА ПЕРЕД ОПЛАТОЙ
-# ==========================
-
-@dp.pre_checkout_query()
-async def checkout(
-    query: PreCheckoutQuery
-):
-
-    await bot.answer_pre_checkout_query(
-        query.id,
-        ok=True
-    )
-
-
-# ==========================
-# УСПЕШНАЯ ОПЛАТА
-# ==========================
-
-@dp.message(F.successful_payment)
-async def payment_success(
-    message: Message
-):
-
-    payment = message.successful_payment
-
-
-    if payment.currency != "RUB":
-
-        return
-
-
-    if payment.total_amount != PRICE:
-
-        return
-
-
-    user_id = message.from_user.id
-
-
-    expire = await add_subscription(
-        user_id
-    )
-
-
+# ОБРАБОТКА КНОПКИ
+@dp.callback_query_handler(lambda c: c.data == 'pay')
+async def process_pay(callback_query: types.CallbackQuery):
+    await bot.answer_callback_query(callback_query.id)
+    
     try:
-
-        invite = await bot.create_chat_invite_link(
-
-            chat_id=CHANNEL_ID,
-
-            member_limit=1
-
+        await bot.send_invoice(
+            chat_id=callback_query.from_user.id,
+            title="ТЕСТОВЫЙ ПЛАТЕЖ",
+            description="Тестовая оплата 100 ₽",
+            payload="test_" + str(callback_query.from_user.id),
+            provider_token=PROVIDER_TOKEN,
+            currency="RUB",
+            prices=[LabeledPrice(label="Тест", amount=10000)],  # 100 ₽
+            start_parameter="test",
+            need_phone_number=False,
+            need_email=False
         )
-
-
+        print(f"✅ Инвойс отправлен {callback_query.from_user.id}")
     except Exception as e:
+        print(f"❌ ОШИБКА: {e}")
+        await callback_query.message.answer(f"❌ Ошибка: {e}")
 
+# ПРОВЕРКА ПЛАТЕЖА
+@dp.pre_checkout_query_handler(lambda query: True)
+async def pre_checkout(pre_checkout_query: types.PreCheckoutQuery):
+    await bot.answer_pre_checkout_query(pre_checkout_query.id, ok=True)
 
-        await bot.send_message(
-
-            ADMIN_ID,
-
-            f"❌ Не могу создать ссылку:\n{e}"
-
-        )
-
-
-        await message.answer(
-
-            "Оплата прошла, но произошла ошибка "
-            "при выдаче доступа.\n"
-            "Напишите администратору."
-
-        )
-
-        return
-
-
-
+# УСПЕШНАЯ ОПЛАТА
+@dp.message_handler(content_types=['successful_payment'])
+async def successful_payment(message: types.Message):
+    amount = message.successful_payment.total_amount // 100
+    
     await message.answer(
-
-        "🖤 Оплата прошла успешно!\n\n"
-
-        "Ваш доступ к каналу:\n"
-
-        f"{invite.invite_link}\n\n"
-
-        "📅 Доступ до:\n"
-
-        f"{expire.strftime('%d.%m.%Y')}"
-
+        f"✅ ОПЛАТА ПРОШЛА УСПЕШНО!\n"
+        f"💰 Сумма: {amount} руб.\n"
+        f"🆔 ID: {message.from_user.id}\n\n"
+        f"🎉 Тест пройден! Оплата работает!"
     )
-
-
+    
     await bot.send_message(
-
-        ADMIN_ID,
-
-        "🤑 Новый платеж!\n\n"
-
-        f"👤 {message.from_user.full_name}\n"
-
-        f"ID: {user_id}\n"
-
-        f"До: {expire.strftime('%d.%m.%Y')}"
-
+        YOUR_TELEGRAM_ID,
+        f"✅ ТЕСТОВАЯ ОПЛАТА\n"
+        f"Сумма: {amount} руб.\n"
+        f"ID: {message.from_user.id}"
     )
 
-
-# ==========================
-# СТАТИСТИКА
-# ==========================
-
-@dp.message(Command("stats"))
-async def stats(message: Message):
-
-    if message.from_user.id != ADMIN_ID:
-
-        return
-
-
-    users = await get_all_users()
-
-
-    await message.answer(
-
-        "📊 Статистика\n\n"
-
-        f"Подписчиков: {len(users)}"
-
-    )
-
-
-
-# ==========================
-# УДАЛЕНИЕ ПРОСРОЧЕННЫХ
-# ==========================
-
-async def check_expired():
-
-
-    while True:
-
-
-        users = await get_all_users()
-
-
-        now = datetime.now()
-
-
-
-        for user_id, date in users:
-
-
-            expire = datetime.fromisoformat(date)
-
-
-
-            if expire <= now:
-
-
-                try:
-
-                    await bot.ban_chat_member(
-
-                        CHANNEL_ID,
-
-                        user_id
-
-                    )
-
-
-                    await bot.unban_chat_member(
-
-                        CHANNEL_ID,
-
-                        user_id
-
-                    )
-
-
-                except Exception:
-
-                    pass
-
-
-
-                await delete_user(
-                    user_id
-                )
-
-
-
-        await asyncio.sleep(3600)
-
-
-
-# ==========================
 # ЗАПУСК
-# ==========================
-
-async def main():
-
-    await init_db()
-
-
-    asyncio.create_task(
-        check_expired()
-    )
-
-
-    print(
-        "BOT STARTED"
-    )
-
-
-    await dp.start_polling(
-        bot
-    )
-
-
-
-if __name__ == "__main__":
-
-    asyncio.run(main())
+if __name__ == '__main__':
+    print("🚀 ЗАПУСК ТЕСТОВОГО БОТА")
+    print(f"🔑 PROVIDER_TOKEN: {PROVIDER_TOKEN[:20]}...")
+    executor.start_polling(dp, skip_updates=True)
