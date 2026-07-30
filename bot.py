@@ -86,61 +86,41 @@ async def start(message: Message):
 
 
 # ==========================
-# СОЗДАНИЕ ОПЛАТЫ
+# ОПЛАТА
 # ==========================
 
 @dp.callback_query(F.data == "buy")
 async def buy(callback: CallbackQuery):
-
     await callback.answer()
 
+    await bot.send_invoice(
+        chat_id=callback.from_user.id,
 
-    try:
+        title="Подписка на канал",
 
-        await bot.send_invoice(
+        description="Доступ к закрытому Telegram-каналу на 30 дней",
 
-            chat_id=callback.from_user.id,
+        payload=f"subscription_{callback.from_user.id}",
 
-            title="Подписка на канал",
+        provider_token=PROVIDER_TOKEN,
 
-            description=(
-                "Доступ к закрытому Telegram-каналу "
-                "на 30 дней"
-            ),
+        currency="RUB",
 
-            payload=(
-                f"channel_subscription_"
-                f"{callback.from_user.id}"
-            ),
+        prices=[
+            LabeledPrice(
+                label="Доступ на 30 дней",
+                amount=PRICE
+            )
+        ],
 
-            provider_token=PROVIDER_TOKEN,
+        start_parameter="subscription",
 
-            currency="RUB",
+        need_phone_number=True,
+        need_email=True,
 
-            prices=[
-                LabeledPrice(
-                    label="Доступ на 30 дней",
-                    amount=PRICE
-                )
-            ],
-
-            start_parameter="channel_access"
-
-        )
-
-
-    except Exception as e:
-
-        print(
-            "ОШИБКА СОЗДАНИЯ ПЛАТЕЖА:",
-            e
-        )
-
-        await callback.message.answer(
-            "❌ Не удалось открыть оплату.\n\n"
-            f"{e}"
-        )
-
+        send_phone_number_to_provider=True,
+        send_email_to_provider=True
+    )
 
 # ==========================
 # ПРОВЕРКА ПЕРЕД ОПЛАТОЙ
