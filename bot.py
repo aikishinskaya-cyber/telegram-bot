@@ -144,7 +144,22 @@ async def buy(callback: CallbackQuery):
     need_email=True,
     send_phone_number_to_provider=True,
     send_email_to_provider=True,
-    provider_data='{"receipt": {"items": [{"description": "Подписка на канал", "quantity": "1.00", "amount": {"value": "1300.00", "currency": "RUB"}, "vat_code": 4}], "tax_system_code": 0}}'
+    provider_data={
+        "receipt": {
+            "items": [
+                {
+                    "description": "Подписка на канал",
+                    "quantity": "1.00",
+                    "amount": {
+                        "value": "1300.00",
+                        "currency": "RUB"
+                    },
+                    "vat_code": 4
+                }
+            ],
+            "tax_system_code": 0
+        }
+    }
 )
 # ==========================
 # ПРОВЕРКА ПЛАТЕЖА
